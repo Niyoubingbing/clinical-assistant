@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/patient/:id", "destination": "/patient/new.html" }
+  ]
+}
