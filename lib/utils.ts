@@ -20,12 +20,30 @@ export function formatDate(d: Date) {
  }
  
  export function daysBetween(a: string, b: string) {
-   const da = new Date(a).getTime()
-   const db = new Date(b).getTime()
-   return Math.round((db - da) / (1000 * 60 * 60 * 24))
- }
- 
- export function relativeDaysLabel(dueDate: string | undefined) {
+  const da = new Date(a).getTime()
+  const db = new Date(b).getTime()
+  return Math.round((db - da) / (1000 * 60 * 60 * 24))
+}
+
+const WEEKDAY_LABELS = ['日', '一', '二', '三', '四', '五', '六']
+
+export function getWeekdayName(d: Date = new Date()) {
+  return WEEKDAY_LABELS[d.getDay()]
+}
+
+export function isDressingDue(patient: { lastDressingChange?: string; dressingFrequency?: number }) {
+  if (!patient.lastDressingChange || !patient.dressingFrequency) return false
+  const daysSince = daysBetween(patient.lastDressingChange, today())
+  return daysSince >= patient.dressingFrequency
+}
+
+export function isBloodTestDue(patient: { bloodTestDay?: string }, d: Date = new Date()) {
+  if (!patient.bloodTestDay) return false
+  const todayName = WEEKDAY_LABELS[d.getDay()]
+  return patient.bloodTestDay.includes(todayName)
+}
+
+export function relativeDaysLabel(dueDate: string | undefined) {
    if (!dueDate) return null
    const diff = daysBetween(today(), dueDate)
    if (diff < 0) return `已逾期 ${-diff} 天`

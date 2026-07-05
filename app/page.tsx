@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { db, Patient, Todo, Settings, getSettings } from '@/lib/db'
 import { AlertBar } from '@/components/alert-bar'
 import { SummaryCard } from '@/components/summary-card'
@@ -14,6 +14,7 @@ import { ImportDialog } from '@/components/import-dialog'
 import { NavBar } from '@/components/nav-bar'
 import { matchesSearch } from '@/lib/pinyin'
 import { toast } from '@/components/toast'
+import { isDueToday, isOverdue, isDressingDue, isBloodTestDue } from '@/lib/utils'
 
 export default function HomePage() {
   const [patients, setPatients] = useState<Patient[]>([])
@@ -21,19 +22,60 @@ export default function HomePage() {
   const [settings, setSettings] = useState<Settings | null>(null)
   const [search, setSearch] = useState('')
   const [group, setGroup] = useState('')
-  const [sheet, setSheet] = useState<'patient' | 'import' | null>(null)
-  const [editingPatient, setEditingPatient] = useState<Patient | undefined>()
+ const [sheet, setSheet] = useState<'patient' | 'import' | null>(null)
+ const [editingPatient, setEditingPatient] = useState<Patient | undefined>()
+  const notifiedRef = useRef<Set<string>>(new Set())
 
-  const load = async () => {
+ const load = async () => {
     const [p, t, s] = await Promise.all([db.patients.toArray(), db.todos.toArray(), getSettings()])
     setPatients(p)
     setTodos(t)
     setSettings(s)
   }
 
-  useEffect(() => { load() }, [])
+ useEffect(() => { load() }, [])
 
-  const groups = useMemo(() => Array.from(new Set(patients.map((p) => p.group).filter(Boolean))) as string[], [patients])
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const key = 'clinical-assistant-home-scroll'
+    const saved = sessionStorage.getItem(key)
+    if (saved) window.scrollTo({ top: Number(saved), behavior: 'auto' })
+    const handleBeforeUnload = () => {
+      sessionStorage.setItem(key, String(window.scrollY))
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      sessionStorage.setItem(key, String(window.scrollY))
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return
+    if (Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+    const interval = setInterval(() => {
+      if (Notification.permission !== 'granted') return
+      const messages: string[] = []
+      const dueToday = todos.filter((t) => t.status === 'pending' && isDueToday(t.dueDate))
+      const overdue = todos.filter((t) => t.status === 'pending' && isOverdue(t.dueDate))
+      const dressingDue = patients.filter((p) => isDressingDue(p))
+      const bloodDue = patients.filter((p) => isBloodTestDue(p))
+      if (dueToday.length) messages.push(`${dueToday.length} 个待办今天到期`)
+      if (overdue.length) messages.push(`${overdue.length} 个待办已逾期`)
+      if (dressingDue.length) messages.push(`${dressingDue.length} 人需要换药`)
+      if (bloodDue.length) messages.push(`${bloodDue.length} 人需要查血`)
+      const key = messages.join('、')
+      if (key && !notifiedRef.current.has(key)) {
+        notifiedRef.current.add(key)
+        new Notification('临床助手提醒', { body: key })
+      }
+    }, 60 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [patients, todos])
+
+ const groups = useMemo(() => Array.from(new Set(patients.map((p) => p.group).filter(Boolean))) as string[], [patients])
 
   const filteredPatients = useMemo(() => {
     let list = patients
@@ -54,6 +96,28 @@ export default function HomePage() {
 
   const handleOpenAddPatient = () => { setEditingPatient(undefined); setSheet('patient') }
   const handleOpenImport = () => setSheet('import')
+
+  const handleDeletePatient = async (patient: Patient) => {
+    const todosToRemove = await db.todos.where('patientId').equals(patient.id).toArray()
+    await db.patients.delete(patient.id)
+    await db.todos.where('patientId').equals(patient.id).delete()
+    load()
+    toast('病人已删除', 'info', {
+      label: '撤销',
+      onClick: async () => {
+        await db.patients.put(patient)
+        if (todosToRemove.length) await db.todos.bulkPut(todosToRemove)
+        load()
+      }
+    })
+  }
+
+  const handleChangeGroup = async (patient: Patient, group: string) => {
+    await db.patients.update(patient.id, { group: group || '', updatedAt: Date.now() })
+    load()
+    toast('分组已更新')
+  }
+
   const handleOpenGlobalTodo = () => {
     const content = prompt('请输入通用待办内容（例如：全院查血）')
     if (!content?.trim()) return
@@ -74,13 +138,19 @@ export default function HomePage() {
     <main className="min-h-screen pb-24 px-4 pt-4 bg-surface">
       <div className="space-y-4">
         <h1 className="text-xl font-bold text-main">查房</h1>
-        <AlertBar todos={todos} />
+        <AlertBar patients={patients} todos={todos} />
         <SummaryCard patients={patients} todos={todos} />
         <SearchInput value={search} onChange={setSearch} />
         <GroupFilter groups={groups} active={group} onChange={setGroup} />
         <div className="grid gap-3">
           {filteredPatients.map((p) => (
-            <PatientCard key={p.id} patient={p} todos={todos.filter((t) => t.patientId === p.id)} />
+            <PatientCard
+              key={p.id}
+              patient={p}
+              todos={todos.filter((t) => t.patientId === p.id)}
+              onDelete={handleDeletePatient}
+              onChangeGroup={handleChangeGroup}
+            />
           ))}
           {filteredPatients.length === 0 && (
             <div className="text-center text-muted py-12 text-sm">暂无病人</div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { db, Patient, Todo } from '@/lib/db'
 import { TodoItem } from '@/components/todo-item'
 import { NavBar } from '@/components/nav-bar'
@@ -20,6 +21,7 @@ export default function TodosPage() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [patients, setPatients] = useState<Patient[]>([])
   const [filter, setFilter] = useState<Filter>('all')
+  const router = useRouter()
 
   const load = async () => {
     const [t, p] = await Promise.all([db.todos.toArray(), db.patients.toArray()])
@@ -85,7 +87,14 @@ export default function TodosPage() {
       </div>
       <div className="space-y-3">
         {filteredTodos.map((t) => (
-          <TodoItem key={t.id} todo={t} patient={patients.find((p) => p.id === t.patientId)} onToggle={handleToggle} onDelete={handleDelete} />
+          <TodoItem
+            key={t.id}
+            todo={t}
+            patient={patients.find((p) => p.id === t.patientId)}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+            onClick={(todo) => router.push(`/patient/${todo.patientId}`)}
+          />
         ))}
         {filteredTodos.length === 0 && (
           <div className="text-center text-muted py-12 text-sm">暂无待办</div>

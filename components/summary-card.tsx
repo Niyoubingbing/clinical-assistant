@@ -1,9 +1,9 @@
  'use client'
  
  import { Patient, Todo } from '@/lib/db'
- import { formatDate, today, copyToClipboard } from '@/lib/utils'
- import { Copy } from 'lucide-react'
- import { toast } from '@/components/toast'
+import { formatDate, today, copyToClipboard } from '@/lib/utils'
+import { Copy, FileJson } from 'lucide-react'
+import { toast } from '@/components/toast'
  
  interface SummaryCardProps {
    patients: Patient[]
@@ -32,18 +32,55 @@
        lines.push(`${p.bedNumber} ${p.name}：${arr.map((t) => t.content).join('，')}`)
      })
    }
-   const text = lines.join('\n')
- 
-   return (
+  const text = lines.join('\n')
+
+  const handleExportJSON = () => {
+    const byPatient = new Map<string, Todo[]>()
+    completedToday.forEach((t) => {
+      const arr = byPatient.get(t.patientId) || []
+      arr.push(t)
+      byPatient.set(t.patientId, arr)
+    })
+    const payload = {
+      date: today(),
+      dressing: dressingToday.length,
+      bloodTest: bloodToday.length,
+      patients: Array.from(byPatient.entries()).map(([pid, arr]) => {
+        const p = patients.find((x) => x.id === pid)
+        return {
+          bedNumber: p?.bedNumber || '',
+          name: p?.name || '未知',
+          todos: arr.map((t) => t.content)
+        }
+      })
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${today()}-summary.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  return (
      <div className="bg-card rounded-xl border border-custom p-4">
        <div className="flex items-center justify-between mb-2">
-         <h3 className="font-semibold text-main">每日小结</h3>
-         <button
-           onClick={() => { copyToClipboard(text); toast('小结已复制') }}
-           className="flex items-center gap-1 text-sm text-primary"
-         >
-           <Copy className="w-4 h-4" /> 复制
-         </button>
+        <h3 className="font-semibold text-main">每日小结</h3>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => { copyToClipboard(text); toast('小结已复制') }}
+            className="flex items-center gap-1 text-sm text-primary"
+          >
+            <Copy className="w-4 h-4" /> 复制
+          </button>
+          <button
+            onClick={handleExportJSON}
+            className="flex items-center gap-1 text-sm text-primary"
+          >
+            <FileJson className="w-4 h-4" /> JSON
+          </button>
+        </div>
        </div>
        <div className="text-sm text-main whitespace-pre-line">{text}</div>
      </div>
