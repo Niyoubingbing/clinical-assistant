@@ -21,8 +21,7 @@ function addDays(dateStr: string, days: number) {
 function parseWeekday(text: string): string | null {
   const currentWeekday = new Date().getDay()
   const currentDate = today()
-  const isNextWeek =
-    text.includes('下周') || text.includes('下星期') || text.includes('下礼拜')
+  const isNextWeek = text.includes('下星期') || text.includes('下礼拜') || text.includes('下下')
   for (let i = 0; i < 7; i++) {
     const matched =
       text.includes(WEEKDAY_NAMES[i]) ||

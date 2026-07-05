@@ -51,16 +51,16 @@
   - 首页挂载时请求浏览器通知权限，并每小时轮询一次，针对当天到期/逾期待办、需换药、需查血的记录发送通知；使用 `Set` 去重避免重复弹窗。
   - 首页离开前（`beforeunload`）和组件卸载时保存 `scrollY`，返回时恢复滚动位置。
 - 每日小结：`components/summary-card.tsx` 在“复制”按钮旁增加 JSON 导出按钮，下载包含日期、换药数、查血数、按病人分组已完成待办的结构化文件。
-- 智能时间解析：在 `lib/time-parser.ts` 中，当用户输入“周X”时，如果当天就是周X，则返回当天；只有明确出现“下下周/下星期X/下下X”时才返回下一周。
+- 智能时间解析：在 `lib/time-parser.ts` 中，当用户输入“周X”时，如果当天就是周X，则返回当天；只有明确出现“下星期/下礼拜/下下”等词时才返回下一周，“下周X”视为本周X。
 - 分组颜色标签：在 `components/patient-card.tsx` 中，分组标签使用 `patient.groupColor` 作为背景色，并通过亮度算法自动选择黑/白文字色，使分组颜色更直观。
 - 批量导入预览：在 `components/import-dialog.tsx` 中，预览导入结果时列出新增/更新/删除的具体病人（床号、姓名、诊断），而不是仅数量。
 - 分组颜色对比文字：在 `components/patient-card.tsx` 和 `app/patient/[id]/patient-detail-client.tsx` 中，床号头像与分组标签均使用 `contrastTextColor` 根据背景亮度自动选择黑/白文字，提升可读性。
 
 ## 最新部署实例
-- 生产 URL：`https://clinical-assistant-ao5bbwv2f-jaidens-projects-efaf9555.vercel.app`
+- 生产 URL：`https://clinical-assistant-8tt5pfx6y-jaidens-projects-efaf9555.vercel.app`
 - 别名：`https://clinical-assistant-omega.vercel.app`
 - 项目 ID：`prj_kYz2qhKdt4BC5I7b0Odrk6jfUwEO`
-- 部署 ID：`dpl_3Ui9Mp6PcyrC2kP8TUGFu1pi8VvB`
+- 部署 ID：`dpl_5mwXouHAaR1JAVkxb4u9JvgbzB8W`
 - GitHub 仓库：`https://github.com/Niyoubingbing/clinical-assistant`
 
 ## 协作备注
@@ -86,3 +86,55 @@
 - 使用 Vercel CLI inspect 确认部署 dpl_3Ui9Mp6PcyrC2kP8TUGFu1pi8VvB 状态为 Ready。
 - 通过 GitHub API 确认 master 最新 commit 为 cc6e4d6a93a0b9f0da0c6f041d0fc55dd52b3226，修正了 Agent.md 中的 commit 哈希。
 - 修正后的 Agent.md 已再次推送至 GitHub，master 更新为 commit 30cda77cee21f83cb5923fa3ccae7eeba7c88dfa。
+
+
+## PRD 验收记录（2026-07-06）
+
+本次验收依据 `PRD.md` v1.0 对临床助手进行全面功能复核，确认以下功能已实现并符合需求：
+
+- 病人管理
+  - 病人列表按自定义查房顺序排序，支持分组筛选、床号/姓名/诊断搜索、拼音首字母搜索。
+  - 添加/编辑病人信息，支持分组、手术日期、换药频率、上次换药、查血日期等字段。
+  - 批量导入病人：粘贴文本预览新增/更新/删除，确认后导入并显示结果统计。
+- 待办管理
+  - 添加待办支持自由文本与智能时间解析（星期、今明后天、具体日期）。
+  - 待办列表支持全部/未完成/已完成/今天到期/已逾期筛选，按时间排序。
+  - 左滑待办露出完成/删除按钮；桌面端通过复选框完成。
+  - 智能提醒：首页顶部提醒栏优先显示最紧迫状态（overdue > today > all），并支持浏览器通知。
+- 查房功能
+  - 查房列表按设置顺序展示病人，保留滚动位置。
+  - 病人详情页展示信息与待办，支持快速标记换药/查血、添加待办。
+  - 完成换药待办时自动更新 `lastDressingChange`。
+- 快捷操作
+  - 病人详情页支持自定义快捷待办。
+  - 首页 FAB 菜单动画展开，支持添加病人、批量导入、添加通用待办。
+- 每日小结
+  - 自动生成当天小结，列出已完成待办、换药/查血记录。
+  - 支持复制文本与导出 JSON。
+- 设置
+  - 主题切换（浅色/深色/系统）无刷新。
+  - 查房顺序设置实时预览，支持一键重置为床号默认顺序。
+  - 快捷待办支持添加/删除/排序。
+  - 数据导出/导入/清除功能。
+
+**验收修复**：
+- `app/settings/page.tsx`：补充缺失的 `Todo` 类型导入，解决 TypeScript 构建错误。
+- `lib/time-parser.ts`：修正 `isNextWeek` 判断，仅当明确出现“下星期/下礼拜/下下”时视为下一周；“下周X”统一按本周X处理。
+
+验收结果：本地 `next build` 静态导出通过，无类型/lint 错误；Vercel 生产部署成功。
+
+## 部署更新记录（2026-07-06 PRD 验收后）
+
+- 源码已重新推送至 GitHub：`Niyoubingbing/clinical-assistant`（包含 PRD 验收修复）。
+- 生产部署成功：`https://clinical-assistant-8tt5pfx6y-jaidens-projects-efaf9555.vercel.app`
+- 别名：`https://clinical-assistant-omega.vercel.app`
+- 部署 ID：`dpl_5mwXouHAaR1JAVkxb4u9JvgbzB8W`
+- 检查面板：`https://vercel.com/jaidens-projects-efaf9555/clinical-assistant/5mwXouHAaR1JAVkxb4u9JvgbzB8W`
+- 备注：本次推送在 PRD 验收修复后执行，源代码已更新 `Agent.md` 与最新部署记录。
+
+## 状态校验记录（2026-07-06 PRD 验收后）
+
+- 本地 `next build` 静态导出通过，PWA 生成正常。
+- 部署 `dpl_5mwXouHAaR1JAVkxb4u9JvgbzB8W` 状态 Ready，生产 URL 可访问。
+- 通过 GitHub API 确认 `master` 分支最新 commit 与本次推送一致。
+- 更新 `Agent.md` 记录 PRD 验收结果、修复细节与最新部署信息。

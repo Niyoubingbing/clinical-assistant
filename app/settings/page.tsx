@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { db, Settings, getSettings, saveSettings, QuickTodo, Patient } from '@/lib/db'
+import { db, Settings, getSettings, saveSettings, QuickTodo, Patient, Todo } from '@/lib/db'
 import { NavBar } from '@/components/nav-bar'
 import { useTheme } from '@/components/providers'
 import { toast } from '@/components/toast'
