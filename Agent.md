@@ -57,10 +57,10 @@
 - 分组颜色对比文字：在 `components/patient-card.tsx` 和 `app/patient/[id]/patient-detail-client.tsx` 中，床号头像与分组标签均使用 `contrastTextColor` 根据背景亮度自动选择黑/白文字，提升可读性。
 
 ## 最新部署实例
-- 生产 URL：`<待更新>`
-- 别名：`<待更新>`
+- 生产 URL：`https://clinical-assistant-hoe25dh1j-jaidens-projects-efaf9555.vercel.app`
+- 别名：`https://clinical-assistant-omega.vercel.app`
 - 项目 ID：`prj_kYz2qhKdt4BC5I7b0Odrk6jfUwEO`
-- 部署 ID：`<待更新>`
+- 部署 ID：`dpl_CNmb53R1Y252tXPd3t9JA9nv8TwC`
 - GitHub 仓库：`https://github.com/Niyoubingbing/clinical-assistant`
 
 ## 协作备注
