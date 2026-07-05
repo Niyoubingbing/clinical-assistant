@@ -11,11 +11,12 @@ function parseRelDay(text: string): string | null {
    return null
  }
  
- function addDays(dateStr: string, days: number) {
-   const d = new Date(dateStr)
-   d.setDate(d.getDate() + days)
-   return formatDate(d)
- }
+function addDays(dateStr: string, days: number) {
+  const [y, m, day] = dateStr.split('-').map((x) => parseInt(x, 10))
+  const d = new Date(y, m - 1, day)
+  d.setDate(d.getDate() + days)
+  return formatDate(d)
+}
  
 function parseWeekday(text: string): string | null {
   const currentWeekday = new Date().getDay()

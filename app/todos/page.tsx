@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { db, Patient, Todo } from '@/lib/db'
 import { TodoItem } from '@/components/todo-item'
 import { NavBar } from '@/components/nav-bar'
-import { cn, isOverdue, isDueToday } from '@/lib/utils'
+import { cn, isOverdue, isDueToday, today } from '@/lib/utils'
 
 type Filter = 'all' | 'pending' | 'completed' | 'today' | 'overdue'
 
@@ -65,7 +65,7 @@ export default function TodosPage() {
     if (todo.type === '换药' && !completed) {
       const patient = patients.find((p) => p.id === todo.patientId)
       if (patient) {
-        await db.patients.update(patient.id, { lastDressingChange: new Date().toISOString().split('T')[0], updatedAt: Date.now() })
+        await db.patients.update(patient.id, { lastDressingChange: today(), updatedAt: Date.now() })
       }
     }
     load()

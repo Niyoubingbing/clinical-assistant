@@ -13,15 +13,18 @@ export function formatDate(d: Date) {
    return formatDate(new Date())
  }
  
- export function addDays(dateStr: string, days: number) {
-   const d = new Date(dateStr)
-   d.setDate(d.getDate() + days)
-   return formatDate(d)
- }
+export function addDays(dateStr: string, days: number) {
+  const [y, m, day] = dateStr.split('-').map((x) => parseInt(x, 10))
+  const d = new Date(y, m - 1, day)
+  d.setDate(d.getDate() + days)
+  return formatDate(d)
+}
  
- export function daysBetween(a: string, b: string) {
-  const da = new Date(a).getTime()
-  const db = new Date(b).getTime()
+export function daysBetween(a: string, b: string) {
+  const [ay, am, ad] = a.split('-').map((x) => parseInt(x, 10))
+  const [by, bm, bd] = b.split('-').map((x) => parseInt(x, 10))
+  const da = new Date(ay, am - 1, ad).getTime()
+  const db = new Date(by, bm - 1, bd).getTime()
   return Math.round((db - da) / (1000 * 60 * 60 * 24))
 }
 
