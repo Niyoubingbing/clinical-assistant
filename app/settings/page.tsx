@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { db, Settings, getSettings, saveSettings, QuickTodo } from '@/lib/db'
+import { useEffect, useMemo, useState } from 'react'
+import { db, Settings, getSettings, saveSettings, QuickTodo, Patient } from '@/lib/db'
 import { NavBar } from '@/components/nav-bar'
 import { useTheme } from '@/components/providers'
 import { toast } from '@/components/toast'
@@ -14,20 +14,56 @@ const THEME_OPTIONS = [
   { key: 'system', label: '系统', icon: Monitor }
 ] as const
 
+function sortPatients(patients: Patient[]) {
+  return [...patients].sort((a, b) => {
+    const na = parseInt(a.bedNumber.match(/\d+/)?.[0] || '0', 10)
+    const nb = parseInt(b.bedNumber.match(/\d+/)?.[0] || '0', 10)
+    if (na !== nb) return na - nb
+    return a.bedNumber.localeCompare(b.bedNumber)
+  })
+}
+
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings | null>(null)
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [defaultOrder, setDefaultOrder] = useState<string[]>([])
   const { theme, setTheme } = useTheme()
   const [orderText, setOrderText] = useState('')
   const [newQuickLabel, setNewQuickLabel] = useState('')
   const [newQuickType, setNewQuickType] = useState('其他')
 
   const load = async () => {
-    const s = await getSettings()
+    const [s, p] = await Promise.all([getSettings(), db.patients.toArray()])
     setSettings(s)
+    setPatients(p)
+    const sorted = sortPatients(p)
+    setDefaultOrder(sorted.map((x) => x.bedNumber))
     setOrderText((s.roundingOrder || []).join('\n'))
   }
 
   useEffect(() => { load() }, [])
+
+  const preview = useMemo(() => {
+    const explicit = orderText.split('\n').map((l) => l.trim()).filter(Boolean)
+    const seen = new Set<string>()
+    const ordered: Patient[] = []
+    for (const bed of explicit) {
+      if (seen.has(bed)) continue
+      const p = patients.find((x) => x.bedNumber === bed)
+      if (p) {
+        ordered.push(p)
+        seen.add(bed)
+      }
+    }
+    const sorted = sortPatients(patients)
+    for (const p of sorted) {
+      if (!seen.has(p.bedNumber)) {
+        ordered.push(p)
+        seen.add(p.bedNumber)
+      }
+    }
+    return ordered
+  }, [orderText, patients])
 
   const handleThemeChange = async (t: 'light' | 'dark' | 'system') => {
     setTheme(t)
@@ -39,6 +75,13 @@ export default function SettingsPage() {
     const order = orderText.split('\n').map((l) => l.trim()).filter(Boolean)
     await saveSettings({ roundingOrder: order })
     toast('查房顺序已保存')
+  }
+
+  const handleResetOrder = async () => {
+    const order = defaultOrder
+    setOrderText(order.join('\n'))
+    await saveSettings({ roundingOrder: order })
+    toast('已重置为默认顺序')
   }
 
   const handleAddQuickTodo = async () => {
@@ -94,6 +137,7 @@ export default function SettingsPage() {
       if (data.patients?.length) await db.patients.bulkAdd(data.patients)
       if (data.todos?.length) await db.todos.bulkAdd(data.todos)
       toast('数据已导入')
+      load()
     } catch (err) {
       toast('导入失败，文件格式错误', 'error')
     }
@@ -144,7 +188,14 @@ export default function SettingsPage() {
             rows={5}
             className="w-full rounded-xl border border-custom bg-surface p-3 text-sm text-main focus:outline-none focus:ring-2 focus:ring-primary/50"
           />
-          <button onClick={handleSaveOrder} className="mt-3 w-full py-2.5 rounded-xl bg-primary text-white font-medium">保存顺序</button>
+          <div className="mt-2 text-xs text-muted">
+            <span className="font-medium text-main">预览：</span>
+            {preview.length > 0 ? preview.map((p) => `${p.bedNumber} ${p.name}`).join(' → ') : '无病人'}
+          </div>
+          <div className="flex gap-2 mt-3">
+            <button onClick={handleResetOrder} className="flex-1 py-2.5 rounded-xl border border-custom text-main text-sm font-medium">重置为默认顺序</button>
+            <button onClick={handleSaveOrder} className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-medium">保存顺序</button>
+          </div>
         </section>
 
         <section className="bg-card rounded-xl border border-custom p-4">

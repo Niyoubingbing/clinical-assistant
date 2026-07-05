@@ -31,6 +31,14 @@ export default function TodosPage() {
 
   useEffect(() => { load() }, [])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const f = params.get('filter')
+    if (f && FILTERS.some((x) => x.key === f)) {
+      setFilter(f as Filter)
+    }
+  }, [])
+
   const filteredTodos = useMemo(() => {
     let list = todos
     if (filter === 'pending') list = list.filter((t) => t.status === 'pending')

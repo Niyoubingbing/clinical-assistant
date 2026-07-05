@@ -31,10 +31,16 @@ export function TodoItem({ todo, patient, onToggle, onDelete, onClick }: TodoIte
 
   return (
     <div className="relative overflow-hidden rounded-xl" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-      <div className="absolute inset-y-0 right-0 flex items-center justify-end gap-2 px-3 bg-red-50 dark:bg-red-950/20">
+      <div className="absolute inset-y-0 right-0 flex items-center justify-center gap-2 w-28 bg-muted/50">
         <button
-          onClick={() => { onDelete(todo.id); setSwiped(false) }}
-          className="p-2 text-red-500 hover:text-red-600"
+          onClick={(e) => { e.stopPropagation(); onToggle(todo.id); setSwiped(false) }}
+          className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600"
+        >
+          <Check className="w-4 h-4" />
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(todo.id); setSwiped(false) }}
+          className="p-2 rounded-full bg-red-500 text-white hover:bg-red-600"
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -44,7 +50,7 @@ export function TodoItem({ todo, patient, onToggle, onDelete, onClick }: TodoIte
           'flex items-center gap-3 p-3 rounded-xl border transition-transform bg-card',
           overdue ? 'border-red-300 bg-red-50 dark:bg-red-950/20' : dueToday ? 'border-orange-300 bg-orange-50 dark:bg-orange-950/20' : 'border-custom'
         )}
-        style={{ transform: swiped ? 'translateX(-80px)' : 'translateX(0)' }}
+        style={{ transform: swiped ? 'translateX(-7rem)' : 'translateX(0)' }}
         onClick={(e) => {
           if (swiped) {
             setSwiped(false)
