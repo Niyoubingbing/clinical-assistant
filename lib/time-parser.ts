@@ -1,19 +1,12 @@
- import { formatDate, today } from './utils'
- 
- const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
- const WEEKDAY_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
- const WEEKDAY_NAMES_LONG = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
- 
- function nextWeekday(target: number): string {
-   const d = new Date()
-   const diff = (target - d.getDay() + 7) % 7
-   d.setDate(d.getDate() + (diff === 0 ? 7 : diff))
-   return formatDate(d)
- }
- 
- function parseRelDay(text: string): string | null {
-   if (text.includes('今天')) return today()
-   if (text.includes('明天')) return addDays(today(), 1)
+import { formatDate, today } from './utils'
+
+const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
+const WEEKDAY_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+const WEEKDAY_NAMES_LONG = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+
+function parseRelDay(text: string): string | null {
+  if (text.includes('今天')) return today()
+  if (text.includes('明天')) return addDays(today(), 1)
    if (text.includes('后天')) return addDays(today(), 2)
    return null
  }
@@ -24,20 +17,24 @@
    return formatDate(d)
  }
  
- function parseWeekday(text: string): string | null {
-   for (let i = 0; i < 7; i++) {
-     if (text.includes(WEEKDAY_NAMES[i]) || text.includes(WEEKDAY_NAMES_LONG[i])) {
-       return nextWeekday(i)
-     }
-     if (text.includes('星期' + WEEKDAYS[i]) && !text.includes('星期' + WEEKDAYS[i] + '后')) {
-       return nextWeekday(i)
-     }
-     if (text.includes('周' + WEEKDAYS[i]) && !text.includes('周' + WEEKDAYS[i] + '后')) {
-       return nextWeekday(i)
-     }
-   }
-   return null
- }
+function parseWeekday(text: string): string | null {
+  const currentWeekday = new Date().getDay()
+  const currentDate = today()
+  const isNextWeek =
+    text.includes('下周') || text.includes('下星期') || text.includes('下礼拜')
+  for (let i = 0; i < 7; i++) {
+    const matched =
+      text.includes(WEEKDAY_NAMES[i]) ||
+      text.includes(WEEKDAY_NAMES_LONG[i]) ||
+      (text.includes('星期' + WEEKDAYS[i]) && !text.includes('星期' + WEEKDAYS[i] + '后')) ||
+      (text.includes('周' + WEEKDAYS[i]) && !text.includes('周' + WEEKDAYS[i] + '后'))
+    if (!matched) continue
+    let diff = (i - currentWeekday + 7) % 7
+    if (isNextWeek && diff === 0) diff = 7
+    return addDays(currentDate, diff)
+  }
+  return null
+}
  
  function parseSpecificDate(text: string): string | null {
    const currentYear = new Date().getFullYear()
