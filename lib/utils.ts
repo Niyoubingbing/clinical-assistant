@@ -61,15 +61,28 @@ export function relativeDaysLabel(dueDate: string | undefined) {
    return daysBetween(today(), dueDate) === 0
  }
  
- export function copyToClipboard(text: string) {
-   if (navigator.clipboard) {
-     navigator.clipboard.writeText(text)
-   } else {
-     const ta = document.createElement('textarea')
-     ta.value = text
-     document.body.appendChild(ta)
-     ta.select()
-     document.execCommand('copy')
-     document.body.removeChild(ta)
-   }
- }
+export function copyToClipboard(text: string) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text)
+  } else {
+    const ta = document.createElement('textarea')
+    ta.value = text
+    document.body.appendChild(ta)
+    ta.select()
+    document.execCommand('copy')
+    document.body.removeChild(ta)
+  }
+}
+export function contrastTextColor(hex?: string) {
+  if (!hex) return '#1e293b'
+  const clean = hex.replace('#', '')
+  const expanded =
+    clean.length === 3
+      ? clean.split('').map((c) => c + c).join('')
+      : clean
+  const r = parseInt(expanded.slice(0, 2), 16)
+  const g = parseInt(expanded.slice(2, 4), 16)
+  const b = parseInt(expanded.slice(4, 6), 16)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return luminance > 0.5 ? '#1e293b' : '#ffffff'
+}

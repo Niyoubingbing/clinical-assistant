@@ -3,26 +3,8 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { Patient, Todo } from '@/lib/db'
-import { relativeDaysLabel, isOverdue, isDueToday, isDressingDue, isBloodTestDue } from '@/lib/utils'
-import { cn } from '@/lib/utils'
+import { relativeDaysLabel, isOverdue, isDueToday, isDressingDue, isBloodTestDue, cn, contrastTextColor } from '@/lib/utils'
 import { FileText, Droplet, Stethoscope, Users, Trash2 } from 'lucide-react'
-
-function contrastTextColor(hex?: string) {
-  if (!hex) return '#1e293b'
-  const clean = hex.replace('#', '')
-  const expanded =
-    clean.length === 3
-      ? clean
-          .split('')
-          .map((c) => c + c)
-          .join('')
-      : clean
-  const r = parseInt(expanded.slice(0, 2), 16)
-  const g = parseInt(expanded.slice(2, 4), 16)
-  const b = parseInt(expanded.slice(4, 6), 16)
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
-  return luminance > 0.5 ? '#1e293b' : '#ffffff'
-}
 
 interface PatientCardProps {
   patient: Patient
@@ -83,10 +65,10 @@ export function PatientCard({ patient, todos, onDelete, onChangeGroup }: Patient
           onMouseUp={cancelLongPress}
           onMouseLeave={cancelLongPress}
         >
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-            style={{ backgroundColor: patient.groupColor || '#e2e8f0', color: '#1e293b' }}
-          >
+         <div
+           className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+           style={{ backgroundColor: patient.groupColor || '#e2e8f0', color: contrastTextColor(patient.groupColor) }}
+         >
             {patient.bedNumber}
           </div>
           <div className="flex-1 min-w-0">

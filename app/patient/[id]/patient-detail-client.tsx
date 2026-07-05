@@ -10,8 +10,8 @@ import { TodoForm } from '@/components/todo-form'
 import { TodoItem } from '@/components/todo-item'
 import { QuickTodoBar } from '@/components/quick-todo-bar'
 import { toast } from '@/components/toast'
-import { today } from '@/lib/utils'
 import { ArrowLeft, Stethoscope, Droplet, ClipboardPlus, Pencil } from 'lucide-react'
+import { today, contrastTextColor } from '@/lib/utils'
 
 export default function PatientDetailClient({ id: initialId }: { id: string }) {
   const params = useParams()
@@ -125,13 +125,17 @@ export default function PatientDetailClient({ id: initialId }: { id: string }) {
 
       <div className="bg-card rounded-xl border border-custom p-4 mb-4">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold" style={{ backgroundColor: patient.groupColor || '#e2e8f0' }}>
-            {patient.bedNumber}
-          </div>
-          <div>
-            <div className="font-semibold text-main">{patient.diagnosis}</div>
-            {patient.group && <div className="text-xs text-muted">{patient.group}</div>}
-          </div>
+        <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold" style={{ backgroundColor: patient.groupColor || '#e2e8f0', color: contrastTextColor(patient.groupColor) }}>
+          {patient.bedNumber}
+        </div>
+        <div>
+          <div className="font-semibold text-main">{patient.diagnosis}</div>
+          {patient.group && (
+            <span className="px-1.5 py-0.5 rounded text-xs font-medium" style={{ backgroundColor: patient.groupColor || '#e2e8f0', color: contrastTextColor(patient.groupColor) }}>
+              {patient.group}
+            </span>
+          )}
+        </div>
         </div>
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="text-muted">手术日期</div>

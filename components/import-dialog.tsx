@@ -9,19 +9,49 @@
    onImported: () => void
  }
  
+ function PreviewList({
+   title,
+   patients,
+   colorClass,
+   borderClass,
+   bgClass
+ }: {
+   title: string
+   patients: Patient[]
+   colorClass: string
+   borderClass: string
+   bgClass?: string
+ }) {
+   if (patients.length === 0) return null
+   return (
+     <div>
+       <div className={`font-medium mb-1 ${colorClass}`}>{title} {patients.length} 人</div>
+       <div className={`space-y-1 max-h-32 overflow-y-auto rounded-lg border p-2 ${borderClass} ${bgClass || 'bg-card'}`}>
+         {patients.map((p) => (
+           <div key={p.id} className="text-xs text-main truncate">
+             {p.bedNumber} {p.name} {p.diagnosis}
+           </div>
+         ))}
+       </div>
+     </div>
+   )
+ }
+ 
  export function ImportDialog({ onClose, onImported }: ImportDialogProps) {
    const [text, setText] = useState('')
    const [preview, setPreview] = useState<{ toAdd: Patient[]; toUpdate: Patient[]; toDelete: Patient[] } | null>(null)
  
    const parseRows = () => {
      const rows = text.split('\n').map((l) => l.trim()).filter(Boolean)
-     return rows.map((row) => {
-       const parts = row.split(/\s+/)
-       const bedNumber = parts[0] || ''
-       const name = parts[1] || ''
-       const diagnosis = parts.slice(2).join(' ') || ''
-       return { bedNumber, name, diagnosis }
-     }).filter((r) => r.name && r.bedNumber)
+     return rows
+       .map((row) => {
+         const parts = row.split(/\s+/)
+         const bedNumber = parts[0] || ''
+         const name = parts[1] || ''
+         const diagnosis = parts.slice(2).join(' ') || ''
+         return { bedNumber, name, diagnosis }
+       })
+       .filter((r) => r.name && r.bedNumber)
    }
  
    const handlePreview = async () => {
@@ -76,13 +106,10 @@
        />
        <button onClick={handlePreview} className="w-full py-2.5 rounded-xl border border-custom text-main font-medium">预览</button>
        {preview && (
-         <div className="space-y-2 text-sm">
-           <div className="text-green-600">新增：{preview.toAdd.length} 人</div>
-           <div className="text-blue-600">更新：{preview.toUpdate.length} 人</div>
-           <div className="text-red-600">删除：{preview.toDelete.length} 人</div>
-           {preview.toDelete.length > 0 && (
-             <div className="text-xs text-muted">{preview.toDelete.map((p) => p.name).join('，')}</div>
-           )}
+         <div className="space-y-3 text-sm">
+           <PreviewList title="新增" patients={preview.toAdd} colorClass="text-green-600" borderClass="border-custom" bgClass="bg-card" />
+           <PreviewList title="更新" patients={preview.toUpdate} colorClass="text-blue-600" borderClass="border-custom" bgClass="bg-card" />
+           <PreviewList title="删除" patients={preview.toDelete} colorClass="text-red-600" borderClass="border-red-100" bgClass="bg-red-50" />
            <button onClick={handleConfirm} className="w-full py-2.5 rounded-xl bg-primary text-white font-medium">确认导入</button>
          </div>
        )}
