@@ -18,9 +18,9 @@
        )}>
          <AlertCircle className="w-5 h-5 shrink-0" />
          <span>
-           {dueToday > 0 && `??? ${dueToday} ?????`}
-           {dueToday > 0 && overdue > 0 && '?'}
-           {overdue > 0 && `? ${overdue} ??????`}
+           {dueToday > 0 && `今天有 ${dueToday} 个待办到期`}
+           {dueToday > 0 && overdue > 0 && '，'}
+           {overdue > 0 && `有 ${overdue} 个待办已逾期`}
          </span>
        </div>
      </Link>

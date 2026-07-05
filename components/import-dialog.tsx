@@ -55,12 +55,12 @@
    const handleConfirm = async () => {
      if (!preview) return
      if (preview.toDelete.length > 0) {
-       if (!confirm(`??? ${preview.toDelete.length} ????????`)) return
+       if (!confirm(`将删除 ${preview.toDelete.length} 位病人，确认吗？`)) return
      }
      await db.patients.bulkPut([...preview.toAdd, ...preview.toUpdate])
      await db.patients.bulkDelete(preview.toDelete.map((p) => p.id))
      await db.todos.where('patientId').anyOf(preview.toDelete.map((p) => p.id)).delete()
-     toast(`??????? ${preview.toAdd.length} ???? ${preview.toUpdate.length} ???? ${preview.toDelete.length} ?`)
+     toast(`导入完成：新增 ${preview.toAdd.length} 人，更新 ${preview.toUpdate.length} 人，删除 ${preview.toDelete.length} 人`)
      onImported()
      onClose()
    }
@@ -70,20 +70,20 @@
        <textarea
          value={text}
          onChange={(e) => setText(e.target.value)}
-         placeholder={`??????? ?? ??\n???\n309W23 ??? ?????????\n309W24 ?? ????`}
+         placeholder={`每行格式：床号 姓名 诊断\n例如：\n309W23 魏亿鑫 取除骨折内固定装置\n309W24 张三 胫骨骨折`}
          rows={6}
          className="w-full rounded-xl border border-custom bg-card p-3 text-sm text-main focus:outline-none focus:ring-2 focus:ring-primary/50"
        />
-       <button onClick={handlePreview} className="w-full py-2.5 rounded-xl border border-custom text-main font-medium">??</button>
+       <button onClick={handlePreview} className="w-full py-2.5 rounded-xl border border-custom text-main font-medium">预览</button>
        {preview && (
          <div className="space-y-2 text-sm">
-           <div className="text-green-600">???{preview.toAdd.length} ?</div>
-           <div className="text-blue-600">???{preview.toUpdate.length} ?</div>
-           <div className="text-red-600">???{preview.toDelete.length} ?</div>
+           <div className="text-green-600">新增：{preview.toAdd.length} 人</div>
+           <div className="text-blue-600">更新：{preview.toUpdate.length} 人</div>
+           <div className="text-red-600">删除：{preview.toDelete.length} 人</div>
            {preview.toDelete.length > 0 && (
-             <div className="text-xs text-muted">{preview.toDelete.map((p) => p.name).join('?')}</div>
+             <div className="text-xs text-muted">{preview.toDelete.map((p) => p.name).join('，')}</div>
            )}
-           <button onClick={handleConfirm} className="w-full py-2.5 rounded-xl bg-primary text-white font-medium">????</button>
+           <button onClick={handleConfirm} className="w-full py-2.5 rounded-xl bg-primary text-white font-medium">确认导入</button>
          </div>
        )}
      </div>

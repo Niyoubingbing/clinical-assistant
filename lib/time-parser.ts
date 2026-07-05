@@ -1,8 +1,8 @@
  import { formatDate, today } from './utils'
  
- const WEEKDAYS = ['?', '?', '?', '?', '?', '?', '?']
- const WEEKDAY_NAMES = ['??', '??', '??', '??', '??', '??', '??']
- const WEEKDAY_NAMES_LONG = ['???', '???', '???', '???', '???', '???', '???']
+ const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
+ const WEEKDAY_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+ const WEEKDAY_NAMES_LONG = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
  
  function nextWeekday(target: number): string {
    const d = new Date()
@@ -12,9 +12,9 @@
  }
  
  function parseRelDay(text: string): string | null {
-   if (text.includes('??')) return today()
-   if (text.includes('??')) return addDays(today(), 1)
-   if (text.includes('??')) return addDays(today(), 2)
+   if (text.includes('今天')) return today()
+   if (text.includes('明天')) return addDays(today(), 1)
+   if (text.includes('后天')) return addDays(today(), 2)
    return null
  }
  
@@ -29,10 +29,10 @@
      if (text.includes(WEEKDAY_NAMES[i]) || text.includes(WEEKDAY_NAMES_LONG[i])) {
        return nextWeekday(i)
      }
-     if (text.includes('??' + WEEKDAYS[i]) && !text.includes('??' + WEEKDAYS[i] + '?')) {
+     if (text.includes('星期' + WEEKDAYS[i]) && !text.includes('星期' + WEEKDAYS[i] + '后')) {
        return nextWeekday(i)
      }
-     if (text.includes('?' + WEEKDAYS[i]) && !text.includes('?' + WEEKDAYS[i] + '?')) {
+     if (text.includes('周' + WEEKDAYS[i]) && !text.includes('周' + WEEKDAYS[i] + '后')) {
        return nextWeekday(i)
      }
    }
@@ -47,8 +47,8 @@
    // 12/5 or 12-5
    m = text.match(/(\d{1,2})[-\/](\d{1,2})/)
    if (m) return `${currentYear}-${pad(m[1])}-${pad(m[2])}`
-   // 12?5?
-   m = text.match(/(\d{1,2})\s*?\s*(\d{1,2})\s*?/)
+   // 12月5日
+   m = text.match(/(\d{1,2})\s*月\s*(\d{1,2})\s*日/)
    if (m) return `${currentYear}-${pad(m[1])}-${pad(m[2])}`
    return null
  }
@@ -61,22 +61,22 @@
    const clean = text.trim()
    if (!clean) return null
    const rel = parseRelDay(clean)
-   if (rel) return { date: rel, label: '????' }
+   if (rel) return { date: rel, label: '今明后天' }
    const week = parseWeekday(clean)
-   if (week) return { date: week, label: '???' }
+   if (week) return { date: week, label: '星期几' }
    const specific = parseSpecificDate(clean)
-   if (specific) return { date: specific, label: '????' }
+   if (specific) return { date: specific, label: '具体日期' }
    return null
  }
  
  export function extractTimeText(text: string): string | null {
    const patterns = [
-     /??|??|??/,
-     /(?:??|?)[???????]/,
-     /(?:???|???????|???|???|???|???|???|???)/,
+     /今天|明天|后天/,
+     /(?:星期|周)[一二三四五六日]/,
+     /(?:星期日|星期一到星期六|星期一|星期二|星期三|星期四|星期五|星期六)/,
      /\d{4}[-\/]\d{1,2}[-\/]\d{1,2}/,
      /\d{1,2}[-\/]\d{1,2}/,
-     /\d{1,2}\s*?\s*\d{1,2}\s*?/
+     /\d{1,2}\s*月\s*\d{1,2}\s*日/
    ]
    for (const p of patterns) {
      const m = text.match(p)

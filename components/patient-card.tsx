@@ -18,7 +18,7 @@
    const dressingDue = patient.lastDressingChange && patient.dressingFrequency
      ? isOverdue(patient.lastDressingChange) || isDueToday(patient.lastDressingChange)
      : false
-   const bloodDue = patient.bloodTestDay && patient.bloodTestDay.includes('??')
+   const bloodDue = patient.bloodTestDay && patient.bloodTestDay.includes('今天')
  
    return (
      <Link href={`/patient/${patient.id}`}>
@@ -46,7 +46,7 @@
              )}
              {(dueToday.length > 0 || overdue.length > 0) && (
                <span className={cn('px-1.5 py-0.5 rounded', overdue.length > 0 ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600')}>
-                 {overdue.length > 0 ? `?? ${overdue.length}` : `?? ${dueToday.length}`}
+                 {overdue.length > 0 ? `逾期 ${overdue.length}` : `今天 ${dueToday.length}`}
                </span>
              )}
            </div>

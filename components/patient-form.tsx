@@ -4,7 +4,7 @@
  import { Patient, db, generateId } from '@/lib/db'
  import { toast } from '@/components/toast'
  
- const PRESET_GROUPS = ['??', '??', '??', '??']
+ const PRESET_GROUPS = ['解组', '勇组', '李组', '王组']
  const PRESET_COLORS = ['#fecaca', '#bfdbfe', '#bbf7d0', '#fde68a', '#e9d5ff', '#cbd5e1']
  
  interface PatientFormProps {
@@ -29,7 +29,7 @@
    const handleSubmit = async (e: React.FormEvent) => {
      e.preventDefault()
      if (!form.bedNumber || !form.name || !form.diagnosis) {
-       toast('???????????', 'error')
+       toast('请填写床号、姓名和诊断', 'error')
        return
      }
      const now = Date.now()
@@ -45,47 +45,47 @@
        updatedAt: now
      } as Patient
      await db.patients.put(payload)
-     toast(patient ? '???????' : '?????')
+     toast(patient ? '病人信息已更新' : '病人已添加')
      onSaved()
    }
  
    const handleDelete = async () => {
      if (!patient) return
-     if (!confirm('??????????????????')) return
+     if (!confirm('确定删除该病人？相关待办也会被删除。')) return
      await db.patients.delete(patient.id)
      await db.todos.where('patientId').equals(patient.id).delete()
-     toast('?????')
+     toast('病人已删除')
      onSaved()
    }
  
    return (
      <form onSubmit={handleSubmit} className="space-y-3">
        <div className="grid grid-cols-2 gap-3">
-         <input type="text" placeholder="??" value={form.bedNumber} onChange={(e) => setForm({ ...form, bedNumber: e.target.value })} className="input" />
-         <input type="text" placeholder="??" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="input" />
+         <input type="text" placeholder="床号" value={form.bedNumber} onChange={(e) => setForm({ ...form, bedNumber: e.target.value })} className="input" />
+         <input type="text" placeholder="姓名" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="input" />
        </div>
-       <input type="text" placeholder="??" value={form.diagnosis} onChange={(e) => setForm({ ...form, diagnosis: e.target.value })} className="input" />
+       <input type="text" placeholder="诊断" value={form.diagnosis} onChange={(e) => setForm({ ...form, diagnosis: e.target.value })} className="input" />
        <div className="grid grid-cols-2 gap-3">
-         <input type="text" placeholder="????" value={form.group} onChange={(e) => setForm({ ...form, group: e.target.value })} list="preset-groups" className="input" />
+         <input type="text" placeholder="分组名称" value={form.group} onChange={(e) => setForm({ ...form, group: e.target.value })} list="preset-groups" className="input" />
          <datalist id="preset-groups">{PRESET_GROUPS.map((g) => <option key={g} value={g} />)}</datalist>
          <input type="color" value={form.groupColor} onChange={(e) => setForm({ ...form, groupColor: e.target.value })} className="input h-10 p-1" />
        </div>
        <div className="grid grid-cols-2 gap-3">
-         <input type="date" placeholder="????" value={form.surgeryDate || ''} onChange={(e) => setForm({ ...form, surgeryDate: e.target.value || undefined })} className="input" />
-         <input type="number" placeholder="???????" value={form.dressingFrequency || ''} onChange={(e) => setForm({ ...form, dressingFrequency: e.target.value ? parseInt(e.target.value) : undefined })} className="input" />
+         <input type="date" placeholder="手术日期" value={form.surgeryDate || ''} onChange={(e) => setForm({ ...form, surgeryDate: e.target.value || undefined })} className="input" />
+         <input type="number" placeholder="换药频率（天）" value={form.dressingFrequency || ''} onChange={(e) => setForm({ ...form, dressingFrequency: e.target.value ? parseInt(e.target.value) : undefined })} className="input" />
        </div>
        <div className="grid grid-cols-2 gap-3">
-         <input type="date" placeholder="??????" value={form.lastDressingChange || ''} onChange={(e) => setForm({ ...form, lastDressingChange: e.target.value || undefined })} className="input" />
-         <input type="text" placeholder="????????" value={form.bloodTestDay || ''} onChange={(e) => setForm({ ...form, bloodTestDay: e.target.value })} className="input" />
+         <input type="date" placeholder="上次换药日期" value={form.lastDressingChange || ''} onChange={(e) => setForm({ ...form, lastDressingChange: e.target.value || undefined })} className="input" />
+         <input type="text" placeholder="查血日期（周几）" value={form.bloodTestDay || ''} onChange={(e) => setForm({ ...form, bloodTestDay: e.target.value })} className="input" />
        </div>
        <div className="flex gap-3 pt-2">
          {onCancel && (
-           <button type="button" onClick={onCancel} className="flex-1 py-2.5 rounded-xl border border-custom text-muted">??</button>
+           <button type="button" onClick={onCancel} className="flex-1 py-2.5 rounded-xl border border-custom text-muted">取消</button>
          )}
-         <button type="submit" className="flex-1 py-2.5 rounded-xl bg-primary text-white font-medium">{patient ? '??' : '??'}</button>
+         <button type="submit" className="flex-1 py-2.5 rounded-xl bg-primary text-white font-medium">{patient ? '保存' : '添加'}</button>
        </div>
        {patient && (
-         <button type="button" onClick={handleDelete} className="w-full py-2.5 rounded-xl border border-red-200 text-red-500 text-sm">????</button>
+         <button type="button" onClick={handleDelete} className="w-full py-2.5 rounded-xl border border-red-200 text-red-500 text-sm">删除病人</button>
        )}
      </form>
    )

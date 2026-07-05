@@ -15,9 +15,9 @@
    const [open, setOpen] = useState(false)
  
    const items = [
-     { label: '????', icon: UserPlus, onClick: onAddPatient },
-     { label: '????', icon: FileInput, onClick: onImport },
-     { label: '????', icon: ClipboardList, onClick: onAddGlobalTodo }
+     { label: '添加病人', icon: UserPlus, onClick: onAddPatient },
+     { label: '批量导入', icon: FileInput, onClick: onImport },
+     { label: '通用待办', icon: ClipboardList, onClick: onAddGlobalTodo }
    ]
  
    return (

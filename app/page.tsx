@@ -55,25 +55,25 @@ export default function HomePage() {
   const handleOpenAddPatient = () => { setEditingPatient(undefined); setSheet('patient') }
   const handleOpenImport = () => setSheet('import')
   const handleOpenGlobalTodo = () => {
-    const content = prompt('??????????????????')
+    const content = prompt('请输入通用待办内容（例如：全院查血）')
     if (!content?.trim()) return
     Promise.all(patients.map((p) => db.todos.add({
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       patientId: p.id,
       content: content.trim(),
-      type: '??',
+      type: '其他',
       status: 'pending',
       createdAt: Date.now()
     }))).then(() => {
       load()
-      toast('???????')
+      toast('通用待办已添加')
     })
   }
 
   return (
     <main className="min-h-screen pb-24 px-4 pt-4 bg-surface">
       <div className="space-y-4">
-        <h1 className="text-xl font-bold text-main">??</h1>
+        <h1 className="text-xl font-bold text-main">查房</h1>
         <AlertBar todos={todos} />
         <SummaryCard patients={patients} todos={todos} />
         <SearchInput value={search} onChange={setSearch} />
@@ -83,15 +83,15 @@ export default function HomePage() {
             <PatientCard key={p.id} patient={p} todos={todos.filter((t) => t.patientId === p.id)} />
           ))}
           {filteredPatients.length === 0 && (
-            <div className="text-center text-muted py-12 text-sm">????</div>
+            <div className="text-center text-muted py-12 text-sm">暂无病人</div>
           )}
         </div>
       </div>
       <FabMenu onAddPatient={handleOpenAddPatient} onImport={handleOpenImport} onAddGlobalTodo={handleOpenGlobalTodo} />
-      <BottomSheet open={sheet === 'patient'} onClose={() => setSheet(null)} title={editingPatient ? '????' : '????'}>
+      <BottomSheet open={sheet === 'patient'} onClose={() => setSheet(null)} title={editingPatient ? '编辑病人' : '添加病人'}>
         <PatientForm patient={editingPatient} onSaved={() => { load(); setSheet(null) }} onCancel={() => setSheet(null)} />
       </BottomSheet>
-      <BottomSheet open={sheet === 'import'} onClose={() => setSheet(null)} title="????">
+      <BottomSheet open={sheet === 'import'} onClose={() => setSheet(null)} title="批量导入">
         <ImportDialog onClose={() => setSheet(null)} onImported={() => { load(); setSheet(null) }} />
       </BottomSheet>
       <NavBar />

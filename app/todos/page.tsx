@@ -9,11 +9,11 @@ import { cn, isOverdue, isDueToday } from '@/lib/utils'
 type Filter = 'all' | 'pending' | 'completed' | 'today' | 'overdue'
 
 const FILTERS: { key: Filter; label: string }[] = [
-  { key: 'all', label: '??' },
-  { key: 'pending', label: '???' },
-  { key: 'completed', label: '???' },
-  { key: 'today', label: '????' },
-  { key: 'overdue', label: '???' }
+  { key: 'all', label: '全部' },
+  { key: 'pending', label: '未完成' },
+  { key: 'completed', label: '已完成' },
+  { key: 'today', label: '今天到期' },
+  { key: 'overdue', label: '已逾期' }
 ]
 
 export default function TodosPage() {
@@ -52,7 +52,7 @@ export default function TodosPage() {
       status: completed ? 'pending' : 'completed',
       completedAt: completed ? undefined : Date.now()
     })
-    if (todo.type === '??' && !completed) {
+    if (todo.type === '换药' && !completed) {
       const patient = patients.find((p) => p.id === todo.patientId)
       if (patient) {
         await db.patients.update(patient.id, { lastDressingChange: new Date().toISOString().split('T')[0], updatedAt: Date.now() })
@@ -68,7 +68,7 @@ export default function TodosPage() {
 
   return (
     <main className="min-h-screen pb-24 px-4 pt-4 bg-surface">
-      <h1 className="text-xl font-bold text-main mb-4">??</h1>
+      <h1 className="text-xl font-bold text-main mb-4">待办</h1>
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mb-4">
         {FILTERS.map((f) => (
           <button
@@ -88,7 +88,7 @@ export default function TodosPage() {
           <TodoItem key={t.id} todo={t} patient={patients.find((p) => p.id === t.patientId)} onToggle={handleToggle} onDelete={handleDelete} />
         ))}
         {filteredTodos.length === 0 && (
-          <div className="text-center text-muted py-12 text-sm">????</div>
+          <div className="text-center text-muted py-12 text-sm">暂无待办</div>
         )}
       </div>
       <NavBar />

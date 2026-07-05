@@ -6,9 +6,9 @@
  import { cn } from '@/lib/utils'
  
  const tabs = [
-   { href: '/', label: '??', icon: Users },
-   { href: '/todos', label: '??', icon: ClipboardList },
-   { href: '/settings', label: '??', icon: Settings }
+   { href: '/', label: '查房', icon: Users },
+   { href: '/todos', label: '待办', icon: ClipboardList },
+   { href: '/settings', label: '设置', icon: Settings }
  ]
  
  export function NavBar() {

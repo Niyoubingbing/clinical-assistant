@@ -60,9 +60,9 @@
    id: 1,
    roundingOrder: [],
    quickTodos: [
-     { label: '??', type: '??', content: '??' },
-     { label: '??', type: '??', content: '??' },
-     { label: '????', type: '???', content: '????' }
+     { label: '换药', type: '换药', content: '换药' },
+     { label: '查血', type: '查血', content: '查血' },
+     { label: '术前准备', type: '开术前', content: '术前准备' }
    ],
    theme: 'system'
  }

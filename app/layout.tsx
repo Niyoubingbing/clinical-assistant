@@ -4,8 +4,8 @@ import { Providers } from '@/components/providers'
 import { Toaster } from '@/components/toast'
 
 export const metadata: Metadata = {
-   title: '????????',
-   description: '?????????????? PWA',
+   title: '临床病人管理助手',
+   description: '面向住院医生的移动端病人管理 PWA',
    manifest: '/manifest.json'
  }
  

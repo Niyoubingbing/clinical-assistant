@@ -28,9 +28,9 @@ export function formatDate(d: Date) {
  export function relativeDaysLabel(dueDate: string | undefined) {
    if (!dueDate) return null
    const diff = daysBetween(today(), dueDate)
-   if (diff < 0) return `??? ${-diff} ?`
-   if (diff === 0) return '????'
-   return `?? ${diff} ?`
+   if (diff < 0) return `已逾期 ${-diff} 天`
+   if (diff === 0) return '今天到期'
+   return `还剩 ${diff} 天`
  }
  
  export function isOverdue(dueDate: string | undefined) {

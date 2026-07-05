@@ -10,7 +10,7 @@
          type="text"
          value={value}
          onChange={(e) => onChange(e.target.value)}
-         placeholder={placeholder || '??????????...'}
+         placeholder={placeholder || '搜索床号、姓名、诊断...'}
          className="w-full h-10 pl-9 pr-8 rounded-xl bg-card border border-custom text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-main"
        />
        {value && (
