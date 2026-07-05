@@ -1,18 +1,23 @@
-﻿# Agent Instructions
+# Agent Instructions
 
 ## 部署工作流
 - 构建产物使用 Next.js 静态导出（`output: 'export'`，`distDir: 'dist'`），生成 `dist` 目录。
-- 直接通过 Vercel REST API（`/v13/deployments`）上传 `dist` 内容进行部署，而非 Vercel CLI。
+- 将 `dist` 内容复制到 `.vercel/output/static`，并写入 `.vercel/output/config.json`（Build Output API v3，包含 `/patient/:id` 路由重写）。
+- 使用 Vercel CLI 的 `--prebuilt` 模式部署到已链接项目：
+-  `vercel deploy --prebuilt --prod --yes --token <VERCEL_TOKEN>`
+-  需设置 `APPDATA` 和 `LOCALAPPDATA` 到可写目录（如项目根目录 `.vercel-cache`），避免 Windows 系统目录权限错误。
+- 项目已通过 `.vercel/project.json` 链接到 `clinical-assistant`（`prj_kYz2qhKdt4BC5I7b0Odrk6jfUwEO`）。
+- 项目根目录 `.git` 只读，因此使用 GitHub REST API（`git/blobs`、`git/trees`、`git/commits`、`git/refs`）将源码直接推送到 `Niyoubingbing/clinical-assistant`。
+- 源码推送到 GitHub 后，Vercel 可自动基于 Git 仓库构建；当前因本地 `next build` 异常，仍采用先本地构建再 `--prebuilt` 部署。
 - 环境限制：
-  - 项目根目录 `.git` 只读，所有 Git 操作在临时仓库 `C:\Users\jaiden\AppData\Local\Temp\clinical-assistant` 完成。
-  - 本地 Git 推送失效，使用 GitHub REST API（`gh api`）更新文件。
-  - PowerShell 执行策略会阻止 npm/npx 的 `.ps1` 脚本，因此构建与包命令使用 `cmd`。
-  - 在 `C:\tmp` 运行 Python 脚本时字节码写入失败，需加 `-B` 参数（如 `python -B C:\tmp\deploy_vercel.py`）。
+-  PowerShell 执行策略会阻止 npm/npx 的 `.ps1` 脚本，构建与包命令优先使用 `cmd`。
+-  Windows 原生 Schannel 在此环境无法完成 GitHub/Vercel 的 TLS 握手（`SEC_E_NO_CREDENTIALS`），因此使用 Node.js `fetch` 调用 REST API。
 - 已部署实例：
-  - 主 URL：`https://clinical-assistant-1q00b0rm8-jaidens-projects-efaf9555.vercel.app`
-  - 别名：`https://clinical-assistant-omega.vercel.app`
-  - 项目 ID：`prj_kYz2qhKdt4BC5I7b0Odrk6jfUwEO`
-  - 部署 ID：`dpl_8LyvmxpZ7eb7igMYoPS1TbneaNqF`
+-  主 URL：`https://clinical-assistant-2v8r77be6-jaidens-projects-efaf9555.vercel.app`
+-  别名：`https://clinical-assistant-omega.vercel.app`
+-  项目 ID：`prj_kYz2qhKdt4BC5I7b0Odrk6jfUwEO`
+-  部署 ID：`dpl_xTPi2bhSXbSmhzChrTG3UuFzEnNk`
+-  GitHub 仓库：`https://github.com/Niyoubingbing/clinical-assistant`
 
 ## 用户习惯
 - 中文是文档、注释和界面的主要语言。
@@ -20,6 +25,8 @@
 - 将新习惯、决策和项目约定记录到 `Agent.md`。
 - 使用仓库已有的框架和模式，避免发明新抽象。
 - 测试覆盖随变更范围扩展。
+- 对 PRD 未覆盖的决策，先做确认再做大幅改动。
+- （待补充）如果你有其他希望记录的习惯（如命名风格、提交信息风格、优先技术选型等），告诉我，我会追加到这里。
 
 ## 项目背景
 - 基于 `PRD.md` 的临床助手项目。
@@ -31,9 +38,9 @@
 - 日期/时间：使用本地日期格式，避免 UTC 导致跨天时差问题。
 - 数据存储：IndexedDB via Dexie，本地离线可用。
 - 主题：CSS 变量 + `dark` class，支持 light/dark/system。
-- 动态路由：病人详情页使用 `generateStaticParams` 生成占位路径，并在客户端通过 `useParams` 读取真实 ID，适配静态导出。
+- 动态路由：病人详情页使用 `generateStaticParams` 生成占位路径，并在客户端通过 `useParams` 读取真实 ID，适配静态导出；Vercel 端通过 rewrite 将 `/patient/:id` 指向 `/patient/new.html`。
 - 图标：使用 SVG 图标（`public/icons/icon.svg`），因为环境无 Python/PIL 可用于生成 PNG。
 
 ## 协作备注
-- 对 PRD 未覆盖的决策，先做确认再做大幅改动。
 - 当新习惯或约定出现时，更新本文件。
+- 当前 Git 仓库只读，后续如需同步代码到 GitHub，请使用 Node.js 脚本或 API 方式，避免直接 `git push`。
