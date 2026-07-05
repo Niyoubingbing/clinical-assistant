@@ -31,6 +31,7 @@ export default function SettingsPage() {
   const [orderText, setOrderText] = useState('')
   const [newQuickLabel, setNewQuickLabel] = useState('')
   const [newQuickType, setNewQuickType] = useState('其他')
+  const [importPreview, setImportPreview] = useState<{ patients: Patient[]; todos: Todo[]; currentPatients: number; currentTodos: number } | null>(null)
 
   const load = async () => {
     const [s, p] = await Promise.all([getSettings(), db.patients.toArray()])
@@ -131,17 +132,32 @@ export default function SettingsPage() {
     const text = await file.text()
     try {
       const data = JSON.parse(text)
-      if (!confirm(`将导入 ${data.patients?.length || 0} 位病人和 ${data.todos?.length || 0} 条待办，现有数据将被覆盖，确认吗？`)) return
-      await db.patients.clear()
-      await db.todos.clear()
-      if (data.patients?.length) await db.patients.bulkAdd(data.patients)
-      if (data.todos?.length) await db.todos.bulkAdd(data.todos)
-      toast('数据已导入')
-      load()
+      const currentPatients = await db.patients.toArray()
+      const currentTodos = await db.todos.toArray()
+      setImportPreview({
+        patients: data.patients || [],
+        todos: data.todos || [],
+        currentPatients: currentPatients.length,
+        currentTodos: currentTodos.length
+      })
+      e.target.value = ''
     } catch (err) {
       toast('导入失败，文件格式错误', 'error')
     }
   }
+
+  const handleConfirmImport = async () => {
+    if (!importPreview) return
+    await db.patients.clear()
+    await db.todos.clear()
+    if (importPreview.patients.length) await db.patients.bulkAdd(importPreview.patients)
+    if (importPreview.todos.length) await db.todos.bulkAdd(importPreview.todos)
+    toast('数据已导入')
+    setImportPreview(null)
+    load()
+  }
+
+  const handleCancelImport = () => setImportPreview(null)
 
   const handleClear = async () => {
     if (!confirm('确定清除所有数据？此操作不可恢复。')) return
@@ -243,6 +259,36 @@ export default function SettingsPage() {
               <input type="file" accept="application/json" onChange={handleImport} className="hidden" />
             </label>
           </div>
+          {importPreview && (
+            <div className="mt-3 p-3 rounded-xl border border-custom bg-surface text-sm">
+              <div className="text-main font-medium mb-2">导入预览</div>
+              <div className="text-muted mb-2">将导入 {importPreview.patients.length} 位病人、{importPreview.todos.length} 条待办，现有 {importPreview.currentPatients} 位病人和 {importPreview.currentTodos} 条待办将被覆盖。</div>
+              {importPreview.patients.length > 0 && (
+                <div className="mb-2">
+                  <div className="text-xs text-muted mb-1">病人</div>
+                  <div className="max-h-24 overflow-y-auto space-y-1">
+                    {importPreview.patients.map((p) => (
+                      <div key={p.id} className="text-xs text-main">{p.bedNumber} {p.name} {p.diagnosis}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {importPreview.todos.length > 0 && (
+                <div className="mb-2">
+                  <div className="text-xs text-muted mb-1">待办</div>
+                  <div className="max-h-24 overflow-y-auto space-y-1">
+                    {importPreview.todos.map((t) => (
+                      <div key={t.id} className="text-xs text-main">{t.content}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="flex gap-2 mt-2">
+                <button onClick={handleCancelImport} className="flex-1 py-2 rounded-xl border border-custom text-main text-sm">取消</button>
+                <button onClick={handleConfirmImport} className="flex-1 py-2 rounded-xl bg-primary text-white text-sm">确认导入</button>
+              </div>
+            </div>
+          )}
           <button onClick={handleClear} className="mt-3 w-full py-2.5 rounded-xl border border-red-200 text-red-500 text-sm flex items-center justify-center gap-2">
             <Trash2 className="w-4 h-4" /> 清除所有数据
           </button>

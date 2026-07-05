@@ -57,10 +57,10 @@
 - 分组颜色对比文字：在 `components/patient-card.tsx` 和 `app/patient/[id]/patient-detail-client.tsx` 中，床号头像与分组标签均使用 `contrastTextColor` 根据背景亮度自动选择黑/白文字，提升可读性。
 
 ## 最新部署实例
-- 生产 URL：`https://clinical-assistant-hoe25dh1j-jaidens-projects-efaf9555.vercel.app`
+- 生产 URL：`https://clinical-assistant-ao5bbwv2f-jaidens-projects-efaf9555.vercel.app`
 - 别名：`https://clinical-assistant-omega.vercel.app`
 - 项目 ID：`prj_kYz2qhKdt4BC5I7b0Odrk6jfUwEO`
-- 部署 ID：`dpl_CNmb53R1Y252tXPd3t9JA9nv8TwC`
+- 部署 ID：`dpl_3Ui9Mp6PcyrC2kP8TUGFu1pi8VvB`
 - GitHub 仓库：`https://github.com/Niyoubingbing/clinical-assistant`
 
 ## 协作备注
@@ -75,8 +75,13 @@
 - 待办项左滑在 touch 设备上可露出完成/删除按钮；桌面端当前通过复选框完成，符合 PRD 可接受范围。
 
 ## 部署更新记录（2026-07-06）
-- 源码已推送至 GitHub：Niyoubingbing/clinical-assistant（commit: 8431b6e0dabd1100218f51f36cc964343c8955c8）。
+- 源码已推送至 GitHub：Niyoubingbing/clinical-assistant（commit: cc6e4d6a93a0b9f0da0c6f041d0fc55dd52b3226）。
 - 生产部署成功：https://clinical-assistant-ao5bbwv2f-jaidens-projects-efaf9555.vercel.app
 - 别名：https://clinical-assistant-omega.vercel.app
 - 部署 ID：dpl_3Ui9Mp6PcyrC2kP8TUGFu1pi8VvB
 - 检查面板：https://vercel.com/jaidens-projects-efaf9555/clinical-assistant/3Ui9Mp6PcyrC2kP8TUGFu1pi8VvB
+
+
+## 状态校验记录（2026-07-06）
+- 使用 Vercel CLI inspect 确认部署 dpl_3Ui9Mp6PcyrC2kP8TUGFu1pi8VvB 状态为 Ready。
+- 通过 GitHub API 确认 master 最新 commit 为 cc6e4d6a93a0b9f0da0c6f041d0fc55dd52b3226，修正了 Agent.md 中的 commit 哈希。
