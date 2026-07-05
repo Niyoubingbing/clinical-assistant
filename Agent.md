@@ -16,10 +16,10 @@
   - 由于 `pnpm next build` / `pnpm exec next build` 在当前环境无法定位 `next` 二进制，构建命令使用 `node_modules\.bin\next.CMD build`（通过 `cmd`）。
   - Token 通过环境变量注入（`VERCEL_TOKEN`、`GITHUB_TOKEN`），脚本中不记录明文。
 - 最新部署实例：
-  - 主 URL：`https://clinical-assistant-osky2bi62-jaidens-projects-efaf9555.vercel.app`
+  - 主 URL：`https://clinical-assistant-j7i0otvce-jaidens-projects-efaf9555.vercel.app`
   - 别名：`https://clinical-assistant-omega.vercel.app`
   - 项目 ID：`prj_kYz2qhKdt4BC5I7b0Odrk6jfUwEO`
-  - 部署 ID：`dpl_HpM592LdKLQmfUm4HkMn9w2DgLGM`
+  - 部署 ID：`dpl_7xNSr9vDjUWjw6UFd4qMjPUn5SXs`
   - GitHub 仓库：`https://github.com/Niyoubingbing/clinical-assistant`
 
 ## 用户习惯
