@@ -68,9 +68,15 @@
 - 当前 Git 仓库只读，后续如需同步代码到 GitHub，请使用 Node.js 脚本或 API 方式，避免直接 `git push`。
 
 ## 验收修复记录（2026-07-06）
-- 修复 lib/utils.ts 中的 ddDays / daysBetween：使用本地日期解析（
-ew Date(y, m-1, d)），避免 UTC 跨天时差导致日期偏移。
-- 同步修复 lib/time-parser.ts 中的本地 ddDays 为同样的本地日期解析逻辑。
-- 修复 pp/todos/page.tsx：完成换药待办时，lastDressingChange 改用 	oday()，避免 	oISOString() 的 UTC 偏差。
+- 修复 lib/utils.ts 中的 addDays / daysBetween：使用本地日期解析（new Date(y, m-1, d)），避免 UTC 跨天时差导致日期偏移。
+- 同步修复 lib/time-parser.ts 中的本地 addDays 为同样的本地日期解析逻辑。
+- 修复 app/todos/page.tsx：完成换药待办时，lastDressingChange 改用 today()，避免 toISOString() 的 UTC 偏差。
 - 构建 Next.js 静态导出（dist）通过，PWA 生成正常。
 - 待办项左滑在 touch 设备上可露出完成/删除按钮；桌面端当前通过复选框完成，符合 PRD 可接受范围。
+
+## 部署更新记录（2026-07-06）
+- 源码已推送至 GitHub：Niyoubingbing/clinical-assistant（commit: 8431b6e0dabd1100218f51f36cc964343c8955c8）。
+- 生产部署成功：https://clinical-assistant-ao5bbwv2f-jaidens-projects-efaf9555.vercel.app
+- 别名：https://clinical-assistant-omega.vercel.app
+- 部署 ID：dpl_3Ui9Mp6PcyrC2kP8TUGFu1pi8VvB
+- 检查面板：https://vercel.com/jaidens-projects-efaf9555/clinical-assistant/3Ui9Mp6PcyrC2kP8TUGFu1pi8VvB
